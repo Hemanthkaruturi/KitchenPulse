@@ -37,8 +37,9 @@ export default function InventoryView({
 
   return (
     <>
-      <div className="filter-section">
+      <div className="filter-bar">
         <div className="search-bar">
+          <span className="search-icon">&#128269;</span>
           <input
             type="text"
             placeholder="Search items..."
@@ -52,15 +53,16 @@ export default function InventoryView({
               className="btn-clear-search"
               type="button"
             >
-              ✕
+              &#x2715;
             </button>
           )}
         </div>
 
-        <div className="filter-controls">
-          <div className="filter-group">
-            <label>Category</label>
+        <div className="filter-grid">
+          <div className="form-group">
+            <label className="form-label">Category</label>
             <select
+              className="form-select"
               value={filterCategory}
               onChange={(e) => setFilterCategory(e.target.value)}
             >
@@ -71,9 +73,10 @@ export default function InventoryView({
             </select>
           </div>
 
-          <div className="filter-group">
-            <label>Location</label>
+          <div className="form-group">
+            <label className="form-label">Location</label>
             <select
+              className="form-select"
               value={filterLocation}
               onChange={(e) => setFilterLocation(e.target.value)}
             >
@@ -84,9 +87,10 @@ export default function InventoryView({
             </select>
           </div>
 
-          <div className="filter-group">
-            <label>Sort By</label>
+          <div className="form-group">
+            <label className="form-label">Sort By</label>
             <select
+              className="form-select"
               value={sortBy}
               onChange={(e) => setSortBy(e.target.value as 'name' | 'date' | 'remaining')}
             >
@@ -96,8 +100,8 @@ export default function InventoryView({
             </select>
           </div>
 
-          <div className="filter-group checkbox-group">
-            <label>
+          <div className="form-group" style={{ justifyContent: 'flex-end' }}>
+            <label className="checkbox-label">
               <input
                 type="checkbox"
                 checked={showLowStockOnly}
@@ -145,40 +149,51 @@ export default function InventoryView({
 
               <div className="item-header">
                 <h3>{itemMaster?.name}</h3>
-                <span className="category-badge">{category?.name}</span>
+                <div className="badges">
+                  {category && <span className="badge badge-category">{category.name}</span>}
+                  {location && <span className="badge badge-location">{location.name}</span>}
+                </div>
               </div>
 
               <div className="item-details">
-                <p><strong>Location:</strong> {location?.name}</p>
-                <p><strong>Total Amount:</strong> {item.totalAmount} {itemMaster?.defaultUnit}</p>
-                <p><strong>Used Amount:</strong> {item.usedAmount.toFixed(2)} {itemMaster?.defaultUnit}</p>
+                <p><strong>Total:</strong> {item.totalAmount} {itemMaster?.defaultUnit}</p>
                 <p><strong>Remaining:</strong> {getRemainingAmount(item).toFixed(2)} {itemMaster?.defaultUnit} ({remainingPercentage.toFixed(1)}%)</p>
-                <p><strong>Purchase Date:</strong> {new Date(item.purchaseDate).toLocaleDateString()}</p>
-                <p><strong>Price:</strong> ₹{item.price.toFixed(2)}</p>
-                <p><strong>Price per {itemMaster?.defaultUnit}:</strong> ₹{getPricePerUnit(item).toFixed(2)}</p>
-                <p><strong>Remaining Value:</strong> ₹{getRemainingValue(item).toFixed(2)}</p>
-
-                {item.comments && (
-                  <div className="comments-section">
-                    <strong>Comments:</strong>
-                    <p>{item.comments}</p>
-                  </div>
-                )}
-
-                {lowStock && (
-                  <div className="alert alert-warning">
-                    Low Stock! Below {item.lowStockThreshold}% threshold
-                  </div>
-                )}
+                <p><strong>Purchased:</strong> {new Date(item.purchaseDate).toLocaleDateString()}</p>
               </div>
 
-              <div className="progress-section">
-                <div className="progress-bar">
-                  <div
-                    className={`progress-fill ${lowStock ? 'low' : ''}`}
-                    style={{ width: `${remainingPercentage}%` }}
-                  ></div>
+              <div className="price-info">
+                <div className="price-row">
+                  <span>Price</span>
+                  <strong style={{ color: 'var(--text-primary)' }}>{'\u20B9'}{item.price.toFixed(2)}</strong>
                 </div>
+                <div className="price-row">
+                  <span>Per {itemMaster?.defaultUnit}</span>
+                  <strong style={{ color: 'var(--text-primary)' }}>{'\u20B9'}{getPricePerUnit(item).toFixed(2)}</strong>
+                </div>
+                <div className="price-row">
+                  <span>Remaining Value</span>
+                  <strong style={{ color: 'var(--success)' }}>{'\u20B9'}{getRemainingValue(item).toFixed(2)}</strong>
+                </div>
+              </div>
+
+              {item.comments && (
+                <div className="comments-section">
+                  <strong>Comments</strong>
+                  <p>{item.comments}</p>
+                </div>
+              )}
+
+              {lowStock && (
+                <div className="alert alert-warning">
+                  Low Stock! Below {item.lowStockThreshold}% threshold
+                </div>
+              )}
+
+              <div className="progress-bar">
+                <div
+                  className="progress-fill"
+                  style={{ width: `${remainingPercentage}%` }}
+                ></div>
               </div>
 
               <div className="usage-update">
@@ -210,15 +225,21 @@ export default function InventoryView({
                 </div>
               </div>
 
-              <button onClick={() => deleteInventoryItem(item.id)} className="btn-delete">Delete</button>
+              <div style={{ marginTop: '0.75rem' }}>
+                <button onClick={() => deleteInventoryItem(item.id)} className="btn btn-danger btn-sm">Delete</button>
+              </div>
             </div>
           )
         })}
         {filteredInventory.length === 0 && currentInventory.length > 0 && (
-          <p className="empty-state">No items match your search/filter criteria.</p>
+          <div className="empty-state">
+            <p>No items match your search/filter criteria.</p>
+          </div>
         )}
         {currentInventory.length === 0 && (
-          <p className="empty-state">No inventory items yet. Switch to "Add Inventory" tab to add items!</p>
+          <div className="empty-state">
+            <p>No inventory items yet. Switch to "Add Inventory" tab to add items!</p>
+          </div>
         )}
       </div>
     </>

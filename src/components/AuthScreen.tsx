@@ -5,15 +5,26 @@ interface AuthScreenProps {
   setAuthForm: (v: { username: string; password: string; name: string }) => void
   handleLogin: (e: React.FormEvent) => void
   handleSignup: (e: React.FormEvent) => void
+  theme: 'light' | 'dark'
+  toggleTheme: () => void
 }
 
-export default function AuthScreen({ isLogin, setIsLogin, authForm, setAuthForm, handleLogin, handleSignup }: AuthScreenProps) {
+export default function AuthScreen({ isLogin, setIsLogin, authForm, setAuthForm, handleLogin, handleSignup, theme, toggleTheme }: AuthScreenProps) {
   return (
-    <div className="app">
-      <header className="header">
-        <h1>KitchenPulse</h1>
-        <p className="tagline">Track your kitchen inventory smartly</p>
-      </header>
+    <div className="auth-page">
+      <div style={{ position: 'absolute', top: '1rem', right: '1rem' }}>
+        <button className="header-icon-btn theme-toggle-icon" onClick={toggleTheme} title="Toggle theme">
+          {theme === 'light' ? '\u{2600}\uFE0F' : '\u{1F319}'}
+        </button>
+      </div>
+
+      <div className="auth-header">
+        <div className="auth-brand">
+          <div className="auth-brand-icon">K</div>
+          <span className="auth-brand-name">KitchenPulse</span>
+        </div>
+        <p className="auth-tagline">Track your kitchen inventory smartly</p>
+      </div>
 
       <div className="auth-container">
         <div className="auth-card">
@@ -35,9 +46,10 @@ export default function AuthScreen({ isLogin, setIsLogin, authForm, setAuthForm,
           <form onSubmit={isLogin ? handleLogin : handleSignup} className="auth-form">
             {!isLogin && (
               <div className="form-group">
-                <label>Full Name</label>
+                <label className="form-label">Full Name</label>
                 <input
                   type="text"
+                  className="form-input"
                   placeholder="Enter your name"
                   value={authForm.name}
                   onChange={(e) => setAuthForm({ ...authForm, name: e.target.value })}
@@ -47,9 +59,10 @@ export default function AuthScreen({ isLogin, setIsLogin, authForm, setAuthForm,
             )}
 
             <div className="form-group">
-              <label>Username</label>
+              <label className="form-label">Username</label>
               <input
                 type="text"
+                className="form-input"
                 placeholder="Enter username"
                 value={authForm.username}
                 onChange={(e) => setAuthForm({ ...authForm, username: e.target.value })}
@@ -58,9 +71,10 @@ export default function AuthScreen({ isLogin, setIsLogin, authForm, setAuthForm,
             </div>
 
             <div className="form-group">
-              <label>Password</label>
+              <label className="form-label">Password</label>
               <input
                 type="password"
+                className="form-input"
                 placeholder="Enter password"
                 value={authForm.password}
                 onChange={(e) => setAuthForm({ ...authForm, password: e.target.value })}

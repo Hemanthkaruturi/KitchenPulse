@@ -21,7 +21,8 @@ export default function SettingsTab({
 
   return (
     <div className="settings-section">
-      <h2>Settings</h2>
+      <h1 className="page-title">Settings</h1>
+      <p className="page-subtitle">Manage your kitchen and members</p>
 
       <div className="settings-card">
         <h3>Kitchen Information</h3>
@@ -29,26 +30,29 @@ export default function SettingsTab({
         <p><strong>Owner:</strong> {getUser(currentKitchen.ownerId)?.name}</p>
         <p><strong>Total Members:</strong> {currentKitchen.memberIds.length}</p>
 
-        <button onClick={() => {
-          setCurrentKitchen(null)
-          localStorage.removeItem('currentKitchen')
-        }} className="btn btn-secondary">
-          Switch Kitchen
-        </button>
+        <div style={{ marginTop: '1rem' }}>
+          <button onClick={() => {
+            setCurrentKitchen(null)
+            localStorage.removeItem('currentKitchen')
+          }} className="btn btn-secondary">
+            Switch Kitchen
+          </button>
+        </div>
       </div>
 
       {isOwner && (
         <div className="settings-card">
-          <h3>Manage Members (Owner Only)</h3>
+          <h3>Manage Members</h3>
 
-          <form onSubmit={addMemberToKitchen} className="quick-add-form">
+          <form onSubmit={addMemberToKitchen} className="form-inline" style={{ marginBottom: '1rem' }}>
             <input
               type="text"
+              className="form-input"
               placeholder="Enter username to add"
               value={newMemberUsername}
               onChange={(e) => setNewMemberUsername(e.target.value)}
             />
-            <button type="submit" className="btn btn-primary">Add Member</button>
+            <button type="submit" className="btn btn-primary">Add</button>
           </form>
 
           <div className="members-list">
@@ -61,13 +65,13 @@ export default function SettingsTab({
                     <strong>{member.name}</strong>
                     <span className="member-username">@{member.username}</span>
                     {memberId === currentKitchen.ownerId && (
-                      <span className="owner-badge">Owner</span>
+                      <span className="badge badge-owner owner-badge">Owner</span>
                     )}
                   </div>
                   {memberId !== currentKitchen.ownerId && (
                     <button
                       onClick={() => removeMemberFromKitchen(memberId)}
-                      className="btn-delete"
+                      className="btn btn-danger btn-sm"
                     >
                       Remove
                     </button>
@@ -91,7 +95,7 @@ export default function SettingsTab({
                     <strong>{member.name}</strong>
                     <span className="member-username">@{member.username}</span>
                     {memberId === currentKitchen.ownerId && (
-                      <span className="owner-badge">Owner</span>
+                      <span className="badge badge-owner owner-badge">Owner</span>
                     )}
                   </div>
                 </div>

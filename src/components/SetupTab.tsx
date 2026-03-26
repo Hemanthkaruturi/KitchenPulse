@@ -34,94 +34,98 @@ export default function SetupTab({
   const getCategory = (id: string) => currentCategories.find(c => c.id === id)
 
   return (
-    <div className="setup-section">
-      <div className="setup-tabs">
+    <div style={{ maxWidth: 800 }}>
+      <h1 className="page-title">Setup</h1>
+      <p className="page-subtitle">Configure categories, locations, and item templates</p>
+
+      <div className="tabs">
         <button
-          className={`setup-tab ${activeSetupTab === 'categories' ? 'active' : ''}`}
+          className={`tab-btn ${activeSetupTab === 'categories' ? 'active' : ''}`}
           onClick={() => setActiveSetupTab('categories')}
         >
           Categories
         </button>
         <button
-          className={`setup-tab ${activeSetupTab === 'locations' ? 'active' : ''}`}
+          className={`tab-btn ${activeSetupTab === 'locations' ? 'active' : ''}`}
           onClick={() => setActiveSetupTab('locations')}
         >
           Locations
         </button>
         <button
-          className={`setup-tab ${activeSetupTab === 'items' ? 'active' : ''}`}
+          className={`tab-btn ${activeSetupTab === 'items' ? 'active' : ''}`}
           onClick={() => setActiveSetupTab('items')}
         >
-          Items
+          Item Masters
         </button>
       </div>
 
       {activeSetupTab === 'categories' && (
-        <div className="setup-content">
-          <h2>Manage Categories</h2>
-
-          <form onSubmit={addCategory} className="quick-add-form">
+        <div>
+          <form onSubmit={addCategory} className="form-inline" style={{ marginBottom: '1.5rem' }}>
             <input
               type="text"
+              className="form-input"
               placeholder="Enter category name (e.g., Spices, Dairy)"
               value={newCategory}
               onChange={(e) => setNewCategory(e.target.value)}
             />
-            <button type="submit" className="btn btn-primary">Add Category</button>
+            <button type="submit" className="btn btn-primary">Add</button>
           </form>
 
           <div className="simple-list">
             {currentCategories.map(category => (
               <div key={category.id} className="simple-list-item">
                 <span>{category.name}</span>
-                <button onClick={() => deleteCategory(category.id)} className="btn-delete">Delete</button>
+                <button onClick={() => deleteCategory(category.id)} className="btn btn-danger btn-sm">Delete</button>
               </div>
             ))}
             {currentCategories.length === 0 && (
-              <p className="empty-state">No categories yet. Add your first category above!</p>
+              <div className="empty-state">
+                <p>No categories yet. Add your first category above!</p>
+              </div>
             )}
           </div>
         </div>
       )}
 
       {activeSetupTab === 'locations' && (
-        <div className="setup-content">
-          <h2>Manage Locations</h2>
-
-          <form onSubmit={addLocation} className="quick-add-form">
+        <div>
+          <form onSubmit={addLocation} className="form-inline" style={{ marginBottom: '1.5rem' }}>
             <input
               type="text"
+              className="form-input"
               placeholder="Enter location (e.g., Top Shelf, Pantry)"
               value={newLocation}
               onChange={(e) => setNewLocation(e.target.value)}
             />
-            <button type="submit" className="btn btn-primary">Add Location</button>
+            <button type="submit" className="btn btn-primary">Add</button>
           </form>
 
           <div className="simple-list">
             {currentLocations.map(location => (
               <div key={location.id} className="simple-list-item">
                 <span>{location.name}</span>
-                <button onClick={() => deleteLocation(location.id)} className="btn-delete">Delete</button>
+                <button onClick={() => deleteLocation(location.id)} className="btn btn-danger btn-sm">Delete</button>
               </div>
             ))}
             {currentLocations.length === 0 && (
-              <p className="empty-state">No locations yet. Add your first location above!</p>
+              <div className="empty-state">
+                <p>No locations yet. Add your first location above!</p>
+              </div>
             )}
           </div>
         </div>
       )}
 
       {activeSetupTab === 'items' && (
-        <div className="setup-content">
-          <h2>Manage Item Masters</h2>
-
+        <div>
           <form onSubmit={addItemMaster} className="add-item-form">
             <div className="form-row">
               <div className="form-group">
-                <label>Item Name</label>
+                <label className="form-label">Item Name</label>
                 <input
                   type="text"
+                  className="form-input"
                   placeholder="e.g., Garam Masala"
                   value={newItemMaster.name}
                   onChange={(e) => setNewItemMaster({ ...newItemMaster, name: e.target.value })}
@@ -130,8 +134,9 @@ export default function SetupTab({
               </div>
 
               <div className="form-group">
-                <label>Category</label>
+                <label className="form-label">Category</label>
                 <select
+                  className="form-select"
                   value={newItemMaster.categoryId}
                   onChange={(e) => setNewItemMaster({ ...newItemMaster, categoryId: e.target.value })}
                   required
@@ -144,8 +149,9 @@ export default function SetupTab({
               </div>
 
               <div className="form-group">
-                <label>Default Unit</label>
+                <label className="form-label">Default Unit</label>
                 <select
+                  className="form-select"
                   value={newItemMaster.defaultUnit}
                   onChange={(e) => setNewItemMaster({ ...newItemMaster, defaultUnit: e.target.value as any })}
                   required
@@ -159,9 +165,10 @@ export default function SetupTab({
               </div>
             </div>
 
-            <div className="form-group">
-              <label>Comments (Optional)</label>
+            <div className="form-group" style={{ marginTop: '0.75rem' }}>
+              <label className="form-label">Comments (Optional)</label>
               <textarea
+                className="form-textarea"
                 placeholder="e.g., Brand name, special notes, etc."
                 value={newItemMaster.comments}
                 onChange={(e) => setNewItemMaster({ ...newItemMaster, comments: e.target.value })}
@@ -169,8 +176,8 @@ export default function SetupTab({
               />
             </div>
 
-            <div className="form-group">
-              <label>Image (Optional)</label>
+            <div className="form-group" style={{ marginTop: '0.75rem' }}>
+              <label className="form-label">Image (Optional)</label>
               <input
                 type="file"
                 accept="image/*"
@@ -180,17 +187,17 @@ export default function SetupTab({
               {newItemMaster.imageUrl && (
                 <div className="image-preview">
                   <img src={newItemMaster.imageUrl} alt="Preview" />
-                  <button type="button" onClick={removeItemMasterImage} className="btn-delete">
+                  <button type="button" onClick={removeItemMasterImage} className="btn btn-danger btn-sm">
                     Remove Image
                   </button>
                 </div>
               )}
             </div>
 
-            <button type="submit" className="btn btn-primary btn-block">Add Item Master</button>
+            <button type="submit" className="btn btn-primary btn-block" style={{ marginTop: '1rem' }}>Add Item Master</button>
           </form>
 
-          <div className="items-grid">
+          <div className="items-grid" style={{ marginTop: '1.5rem' }}>
             {currentItemMasters.map(item => (
               <div key={item.id} className="item-card">
                 {item.imageUrl && (
@@ -200,22 +207,24 @@ export default function SetupTab({
                 )}
                 <div className="item-header">
                   <h3>{item.name}</h3>
-                  <span className="category-badge">{getCategory(item.categoryId)?.name}</span>
+                  <span className="badge badge-category">{getCategory(item.categoryId)?.name}</span>
                 </div>
                 <div className="item-details">
                   <p><strong>Default Unit:</strong> {getUnitLabel(item.defaultUnit)}</p>
                   {item.comments && (
                     <div className="comments-section">
-                      <strong>Comments:</strong>
+                      <strong>Comments</strong>
                       <p>{item.comments}</p>
                     </div>
                   )}
                 </div>
-                <button onClick={() => deleteItemMaster(item.id)} className="btn-delete">Delete</button>
+                <button onClick={() => deleteItemMaster(item.id)} className="btn btn-danger btn-sm">Delete</button>
               </div>
             ))}
             {currentItemMasters.length === 0 && (
-              <p className="empty-state">No items yet. Add your first item above!</p>
+              <div className="empty-state">
+                <p>No items yet. Add your first item above!</p>
+              </div>
             )}
           </div>
         </div>

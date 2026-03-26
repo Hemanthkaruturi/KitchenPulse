@@ -33,16 +33,14 @@ export default function InventoryTab(props: InventoryTabProps) {
   const [activeInventoryTab, setActiveInventoryTab] = useState<InventoryTabType>('view')
 
   return (
-    <div className="inventory-section">
-      <h2>Inventory Management</h2>
-
-      <div className="setup-tabs">
+    <div>
+      <div className="tabs">
         <button
-          className={`setup-tab ${activeInventoryTab === 'view' ? 'active' : ''}`}
+          className={`tab-btn ${activeInventoryTab === 'view' ? 'active' : ''}`}
           onClick={() => setActiveInventoryTab('view')}
         >View Inventory</button>
         <button
-          className={`setup-tab ${activeInventoryTab === 'add' ? 'active' : ''}`}
+          className={`tab-btn ${activeInventoryTab === 'add' ? 'active' : ''}`}
           onClick={() => setActiveInventoryTab('add')}
         >Add Inventory</button>
       </div>

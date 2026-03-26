@@ -28,8 +28,9 @@ export default function InventoryAdd({
       <form onSubmit={addInventoryItem} className="add-item-form">
         <div className="form-row">
           <div className="form-group">
-            <label>Item</label>
+            <label className="form-label">Item</label>
             <select
+              className="form-select"
               value={newInventoryItem.itemMasterId}
               onChange={(e) => setNewInventoryItem({ ...newInventoryItem, itemMasterId: e.target.value })}
               required
@@ -42,8 +43,9 @@ export default function InventoryAdd({
           </div>
 
           <div className="form-group">
-            <label>Location</label>
+            <label className="form-label">Location</label>
             <select
+              className="form-select"
               value={newInventoryItem.locationId}
               onChange={(e) => setNewInventoryItem({ ...newInventoryItem, locationId: e.target.value })}
               required
@@ -56,7 +58,7 @@ export default function InventoryAdd({
           </div>
 
           <div className="form-group">
-            <label>
+            <label className="form-label">
               Total Amount
               {newInventoryItem.itemMasterId && (() => {
                 const item = getItemMaster(newInventoryItem.itemMasterId)
@@ -65,6 +67,7 @@ export default function InventoryAdd({
             </label>
             <input
               type="number"
+              className="form-input"
               step="0.01"
               placeholder="e.g., 100"
               value={newInventoryItem.totalAmount}
@@ -74,9 +77,10 @@ export default function InventoryAdd({
           </div>
 
           <div className="form-group">
-            <label>Price (₹)</label>
+            <label className="form-label">Price ({'\u20B9'})</label>
             <input
               type="number"
+              className="form-input"
               step="0.01"
               placeholder="e.g., 150"
               value={newInventoryItem.price}
@@ -86,9 +90,10 @@ export default function InventoryAdd({
           </div>
 
           <div className="form-group">
-            <label>Low Stock Alert (%)</label>
+            <label className="form-label">Low Stock Alert (%)</label>
             <input
               type="number"
+              className="form-input"
               min="0"
               max="100"
               placeholder="e.g., 20"
@@ -99,9 +104,10 @@ export default function InventoryAdd({
           </div>
         </div>
 
-        <div className="form-group">
-          <label>Comments (Optional)</label>
+        <div className="form-group" style={{ marginTop: '0.75rem' }}>
+          <label className="form-label">Comments (Optional)</label>
           <textarea
+            className="form-textarea"
             placeholder="e.g., Bought on sale, expiry date, etc."
             value={newInventoryItem.comments}
             onChange={(e) => setNewInventoryItem({ ...newInventoryItem, comments: e.target.value })}
@@ -109,8 +115,8 @@ export default function InventoryAdd({
           />
         </div>
 
-        <div className="form-group">
-          <label>Image (Optional)</label>
+        <div className="form-group" style={{ marginTop: '0.75rem' }}>
+          <label className="form-label">Image (Optional)</label>
           <input
             type="file"
             accept="image/*"
@@ -120,14 +126,14 @@ export default function InventoryAdd({
           {newInventoryItem.imageUrl && (
             <div className="image-preview">
               <img src={newInventoryItem.imageUrl} alt="Preview" />
-              <button type="button" onClick={removeInventoryImage} className="btn-delete">
+              <button type="button" onClick={removeInventoryImage} className="btn btn-danger btn-sm">
                 Remove Image
               </button>
             </div>
           )}
         </div>
 
-        <button type="submit" className="btn btn-primary btn-block">Add to Inventory</button>
+        <button type="submit" className="btn btn-primary btn-block" style={{ marginTop: '1rem' }}>Add to Inventory</button>
       </form>
     </>
   )

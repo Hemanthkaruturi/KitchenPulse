@@ -3,6 +3,7 @@ import './App.css'
 import { User, Kitchen, Category, Location, ItemMaster, InventoryItem, Tab } from './types'
 import { initializeAppData } from './data'
 import { isLowStock, getRemainingPercentage } from './utils'
+import { useTheme } from './ThemeContext'
 import AuthScreen from './components/AuthScreen'
 import KitchenSelection from './components/KitchenSelection'
 import SettingsTab from './components/SettingsTab'
@@ -11,7 +12,15 @@ import InventoryTab from './components/InventoryTab'
 
 const initialData = initializeAppData()
 
+const NAV_ITEMS: { id: Tab; label: string; icon: string }[] = [
+  { id: 'inventory', label: 'Inventory', icon: '\u{1F4E6}' },
+  { id: 'setup', label: 'Setup', icon: '\u{2699}\uFE0F' },
+  { id: 'settings', label: 'Settings', icon: '\u{1F527}' },
+]
+
 function App() {
+  const { theme, toggleTheme } = useTheme()
+
   // Auth state
   const [currentUser, setCurrentUser] = useState<User | null>(initialData.currentUser)
   const [currentKitchen, setCurrentKitchen] = useState<Kitchen | null>(initialData.currentKitchen)
@@ -20,6 +29,7 @@ function App() {
 
   // Navigation
   const [activeTab, setActiveTab] = useState<Tab>('inventory')
+  const [sidebarOpen, setSidebarOpen] = useState(false)
 
   // Master data
   const [users, setUsers] = useState<User[]>(initialData.users)
@@ -276,6 +286,10 @@ function App() {
   }
   const filteredInventory = getFilteredAndSortedInventory()
 
+  // Compute stats
+  const lowStockCount = currentInventory.filter(i => isLowStock(i)).length
+  const totalValue = currentInventory.reduce((sum, i) => sum + i.price, 0)
+
   // Auth screen
   if (!currentUser) {
     return (
@@ -283,6 +297,7 @@ function App() {
         isLogin={isLogin} setIsLogin={setIsLogin}
         authForm={authForm} setAuthForm={setAuthForm}
         handleLogin={handleLogin} handleSignup={handleSignup}
+        theme={theme} toggleTheme={toggleTheme}
       />
     )
   }
@@ -295,68 +310,185 @@ function App() {
         newKitchenName={newKitchenName} setNewKitchenName={setNewKitchenName}
         setCurrentKitchen={setCurrentKitchen} createKitchen={createKitchen}
         handleLogout={handleLogout}
+        theme={theme} toggleTheme={toggleTheme}
       />
     )
   }
 
+  const tabLabels: Record<Tab, string> = {
+    inventory: 'Inventory',
+    setup: 'Setup',
+    settings: 'Settings',
+  }
+
   // Main app
   return (
-    <div className="app">
-      <header className="header">
-        <h1>KitchenPulse</h1>
-        <div className="header-info">
-          <span className="user-info">{currentUser.name} | {currentKitchen.name}</span>
-          <button onClick={handleLogout} className="btn-logout">Logout</button>
+    <div className="app-layout">
+      {/* Sidebar Overlay (mobile) */}
+      <div
+        className={`sidebar-overlay ${sidebarOpen ? 'visible' : ''}`}
+        onClick={() => setSidebarOpen(false)}
+      />
+
+      {/* Sidebar */}
+      <aside className={`sidebar ${sidebarOpen ? 'open' : ''}`}>
+        <div className="sidebar-brand">
+          <div className="brand-icon">K</div>
+          <span className="brand-name">KitchenPulse</span>
         </div>
-      </header>
 
-      <nav className="main-tabs">
-        <button className={`tab-btn ${activeTab === 'inventory' ? 'active' : ''}`} onClick={() => setActiveTab('inventory')}>Inventory</button>
-        <button className={`tab-btn ${activeTab === 'setup' ? 'active' : ''}`} onClick={() => setActiveTab('setup')}>Setup</button>
-        <button className={`tab-btn ${activeTab === 'settings' ? 'active' : ''}`} onClick={() => setActiveTab('settings')}>Settings</button>
-      </nav>
+        <nav className="sidebar-nav">
+          <div className="sidebar-section-label">Manage</div>
+          {NAV_ITEMS.map(item => (
+            <button
+              key={item.id}
+              className={`sidebar-link ${activeTab === item.id ? 'active' : ''}`}
+              onClick={() => { setActiveTab(item.id); setSidebarOpen(false) }}
+            >
+              <span className="sidebar-link-icon">{item.icon}</span>
+              {item.label}
+            </button>
+          ))}
+        </nav>
 
-      <main className="container">
-        {activeTab === 'settings' && (
-          <SettingsTab
-            currentUser={currentUser} currentKitchen={currentKitchen}
-            isOwner={!!isOwner} users={users}
-            newMemberUsername={newMemberUsername} setNewMemberUsername={setNewMemberUsername}
-            addMemberToKitchen={addMemberToKitchen} removeMemberFromKitchen={removeMemberFromKitchen}
-            setCurrentKitchen={setCurrentKitchen}
-          />
-        )}
+        <div className="sidebar-footer">
+          <div className="sidebar-user">
+            <div className="sidebar-avatar">
+              {currentUser.name.charAt(0).toUpperCase()}
+            </div>
+            <div className="sidebar-user-info">
+              <div className="sidebar-user-name">{currentUser.name}</div>
+              <div className="sidebar-user-role">{currentKitchen.name}</div>
+            </div>
+          </div>
+        </div>
+      </aside>
 
-        {activeTab === 'setup' && (
-          <SetupTab
-            currentCategories={currentCategories} currentLocations={currentLocations} currentItemMasters={currentItemMasters}
-            addCategory={addCategory} deleteCategory={deleteCategory}
-            addLocation={addLocation} deleteLocation={deleteLocation}
-            addItemMaster={addItemMaster} deleteItemMaster={deleteItemMaster}
-            newCategory={newCategory} setNewCategory={setNewCategory}
-            newLocation={newLocation} setNewLocation={setNewLocation}
-            newItemMaster={newItemMaster} setNewItemMaster={setNewItemMaster}
-            handleItemMasterImageUpload={handleItemMasterImageUpload} removeItemMasterImage={removeItemMasterImage}
-          />
-        )}
+      {/* Main Area */}
+      <div className="main-area">
+        {/* Top Header */}
+        <header className="top-header">
+          <div className="header-left">
+            <button className="mobile-menu-btn" onClick={() => setSidebarOpen(true)}>
+              &#9776;
+            </button>
+            <div className="breadcrumb">
+              <span>Home</span>
+              <span className="breadcrumb-sep">&gt;</span>
+              <span className="breadcrumb-current">{tabLabels[activeTab]}</span>
+            </div>
+          </div>
 
-        {activeTab === 'inventory' && (
-          <InventoryTab
-            filteredInventory={filteredInventory} currentInventory={currentInventory}
-            currentCategories={currentCategories} currentLocations={currentLocations} currentItemMasters={currentItemMasters}
-            searchQuery={searchQuery} setSearchQuery={setSearchQuery}
-            filterCategory={filterCategory} setFilterCategory={setFilterCategory}
-            filterLocation={filterLocation} setFilterLocation={setFilterLocation}
-            showLowStockOnly={showLowStockOnly} setShowLowStockOnly={setShowLowStockOnly}
-            sortBy={sortBy} setSortBy={setSortBy}
-            updateInventoryUsage={updateInventoryUsage} deleteInventoryItem={deleteInventoryItem}
-            newInventoryItem={newInventoryItem} setNewInventoryItem={setNewInventoryItem}
-            addInventoryItem={addInventoryItem}
-            handleInventoryImageUpload={handleInventoryImageUpload} removeInventoryImage={removeInventoryImage}
-            successMessage={successMessage}
-          />
-        )}
-      </main>
+          <div className="header-right">
+            <div className="header-search">
+              <span className="header-search-icon">&#128269;</span>
+              <input
+                type="text"
+                className="header-search-input"
+                placeholder="Search here"
+              />
+            </div>
+
+            <button className="header-icon-btn theme-toggle-icon" onClick={toggleTheme} title="Toggle theme">
+              {theme === 'light' ? '\u{2600}\uFE0F' : '\u{1F319}'}
+            </button>
+
+            <button className="header-icon-btn" onClick={handleLogout} title="Logout">
+              &#x23FB;
+            </button>
+
+            <div className="header-user">
+              <div className="header-avatar">
+                {currentUser.name.charAt(0).toUpperCase()}
+              </div>
+              <div className="header-user-details">
+                <span className="header-user-name">{currentUser.name}</span>
+                <span className="header-user-role">{isOwner ? 'Owner' : 'Member'}</span>
+              </div>
+            </div>
+          </div>
+        </header>
+
+        {/* Page Content */}
+        <main className="page-content">
+          {/* Stats Row */}
+          {activeTab === 'inventory' && (
+            <div className="stats-grid">
+              <div className="stat-card">
+                <div className="stat-label">Total Items</div>
+                <div className="stat-value-row">
+                  <span className="stat-value">{currentInventory.length}</span>
+                </div>
+                <div className="stat-compare">In {currentKitchen.name}</div>
+              </div>
+              <div className="stat-card">
+                <div className="stat-label">Item Masters</div>
+                <div className="stat-value-row">
+                  <span className="stat-value">{currentItemMasters.length}</span>
+                </div>
+                <div className="stat-compare">Templates defined</div>
+              </div>
+              <div className="stat-card">
+                <div className="stat-label">Low Stock</div>
+                <div className="stat-value-row">
+                  <span className="stat-value">{lowStockCount}</span>
+                  {lowStockCount > 0 && (
+                    <span className="stat-badge down">Needs attention</span>
+                  )}
+                </div>
+                <div className="stat-compare">Below threshold</div>
+              </div>
+              <div className="stat-card">
+                <div className="stat-label">Total Value</div>
+                <div className="stat-value-row">
+                  <span className="stat-value">{'\u20B9'}{totalValue.toFixed(0)}</span>
+                </div>
+                <div className="stat-compare">Inventory worth</div>
+              </div>
+            </div>
+          )}
+
+          {activeTab === 'settings' && (
+            <SettingsTab
+              currentUser={currentUser} currentKitchen={currentKitchen}
+              isOwner={!!isOwner} users={users}
+              newMemberUsername={newMemberUsername} setNewMemberUsername={setNewMemberUsername}
+              addMemberToKitchen={addMemberToKitchen} removeMemberFromKitchen={removeMemberFromKitchen}
+              setCurrentKitchen={setCurrentKitchen}
+            />
+          )}
+
+          {activeTab === 'setup' && (
+            <SetupTab
+              currentCategories={currentCategories} currentLocations={currentLocations} currentItemMasters={currentItemMasters}
+              addCategory={addCategory} deleteCategory={deleteCategory}
+              addLocation={addLocation} deleteLocation={deleteLocation}
+              addItemMaster={addItemMaster} deleteItemMaster={deleteItemMaster}
+              newCategory={newCategory} setNewCategory={setNewCategory}
+              newLocation={newLocation} setNewLocation={setNewLocation}
+              newItemMaster={newItemMaster} setNewItemMaster={setNewItemMaster}
+              handleItemMasterImageUpload={handleItemMasterImageUpload} removeItemMasterImage={removeItemMasterImage}
+            />
+          )}
+
+          {activeTab === 'inventory' && (
+            <InventoryTab
+              filteredInventory={filteredInventory} currentInventory={currentInventory}
+              currentCategories={currentCategories} currentLocations={currentLocations} currentItemMasters={currentItemMasters}
+              searchQuery={searchQuery} setSearchQuery={setSearchQuery}
+              filterCategory={filterCategory} setFilterCategory={setFilterCategory}
+              filterLocation={filterLocation} setFilterLocation={setFilterLocation}
+              showLowStockOnly={showLowStockOnly} setShowLowStockOnly={setShowLowStockOnly}
+              sortBy={sortBy} setSortBy={setSortBy}
+              updateInventoryUsage={updateInventoryUsage} deleteInventoryItem={deleteInventoryItem}
+              newInventoryItem={newInventoryItem} setNewInventoryItem={setNewInventoryItem}
+              addInventoryItem={addInventoryItem}
+              handleInventoryImageUpload={handleInventoryImageUpload} removeInventoryImage={removeInventoryImage}
+              successMessage={successMessage}
+            />
+          )}
+        </main>
+      </div>
     </div>
   )
 }
