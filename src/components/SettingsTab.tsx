@@ -20,86 +20,91 @@ export default function SettingsTab({
   const getUser = (id: string) => users.find(u => u.id === id)
 
   return (
-    <div className="settings-section">
-      <h2>Settings</h2>
+    <div>
+      <h2 className="page-title">Settings</h2>
 
-      <div className="settings-card">
-        <h3>Kitchen Information</h3>
-        <p><strong>Name:</strong> {currentKitchen.name}</p>
-        <p><strong>Owner:</strong> {getUser(currentKitchen.ownerId)?.name}</p>
-        <p><strong>Total Members:</strong> {currentKitchen.memberIds.length}</p>
+      <div className="settings-grid">
+        <div className="settings-card">
+          <h3>Kitchen Information</h3>
+          <p><strong>Name:</strong> {currentKitchen.name}</p>
+          <p><strong>Owner:</strong> {getUser(currentKitchen.ownerId)?.name}</p>
+          <p><strong>Total Members:</strong> {currentKitchen.memberIds.length}</p>
+          <button
+            onClick={() => {
+              setCurrentKitchen(null)
+              localStorage.removeItem('currentKitchen')
+            }}
+            className="btn btn-secondary"
+            style={{ marginTop: '1rem' }}
+          >
+            Switch Kitchen
+          </button>
+        </div>
 
-        <button onClick={() => {
-          setCurrentKitchen(null)
-          localStorage.removeItem('currentKitchen')
-        }} className="btn btn-secondary">
-          Switch Kitchen
-        </button>
+        {isOwner && (
+          <div className="settings-card">
+            <h3>Manage Members (Owner Only)</h3>
+
+            <form onSubmit={addMemberToKitchen} className="form-inline">
+              <input
+                type="text"
+                placeholder="Enter username to add"
+                value={newMemberUsername}
+                onChange={(e) => setNewMemberUsername(e.target.value)}
+              />
+              <button type="submit" className="btn btn-primary">Add Member</button>
+            </form>
+
+            <div className="members-list">
+              <h4>Current Members</h4>
+              {currentKitchen.memberIds.map(memberId => {
+                const member = getUser(memberId)
+                return member ? (
+                  <div key={memberId} className="member-item">
+                    <div className="member-info">
+                      <strong>{member.name}</strong>
+                      <span className="member-username">@{member.username}</span>
+                      {memberId === currentKitchen.ownerId && (
+                        <span className="badge badge-owner">Owner</span>
+                      )}
+                    </div>
+                    {memberId !== currentKitchen.ownerId && (
+                      <button
+                        onClick={() => removeMemberFromKitchen(memberId)}
+                        className="btn btn-danger btn-sm"
+                      >
+                        Remove
+                      </button>
+                    )}
+                  </div>
+                ) : null
+              })}
+            </div>
+          </div>
+        )}
+
+        {!isOwner && (
+          <div className="settings-card">
+            <h3>Kitchen Members</h3>
+            <div className="members-list">
+              {currentKitchen.memberIds.map(memberId => {
+                const member = getUser(memberId)
+                return member ? (
+                  <div key={memberId} className="member-item">
+                    <div className="member-info">
+                      <strong>{member.name}</strong>
+                      <span className="member-username">@{member.username}</span>
+                      {memberId === currentKitchen.ownerId && (
+                        <span className="badge badge-owner">Owner</span>
+                      )}
+                    </div>
+                  </div>
+                ) : null
+              })}
+            </div>
+          </div>
+        )}
       </div>
-
-      {isOwner && (
-        <div className="settings-card">
-          <h3>Manage Members (Owner Only)</h3>
-
-          <form onSubmit={addMemberToKitchen} className="quick-add-form">
-            <input
-              type="text"
-              placeholder="Enter username to add"
-              value={newMemberUsername}
-              onChange={(e) => setNewMemberUsername(e.target.value)}
-            />
-            <button type="submit" className="btn btn-primary">Add Member</button>
-          </form>
-
-          <div className="members-list">
-            <h4>Current Members</h4>
-            {currentKitchen.memberIds.map(memberId => {
-              const member = getUser(memberId)
-              return member ? (
-                <div key={memberId} className="member-item">
-                  <div>
-                    <strong>{member.name}</strong>
-                    <span className="member-username">@{member.username}</span>
-                    {memberId === currentKitchen.ownerId && (
-                      <span className="owner-badge">Owner</span>
-                    )}
-                  </div>
-                  {memberId !== currentKitchen.ownerId && (
-                    <button
-                      onClick={() => removeMemberFromKitchen(memberId)}
-                      className="btn-delete"
-                    >
-                      Remove
-                    </button>
-                  )}
-                </div>
-              ) : null
-            })}
-          </div>
-        </div>
-      )}
-
-      {!isOwner && (
-        <div className="settings-card">
-          <h3>Kitchen Members</h3>
-          <div className="members-list">
-            {currentKitchen.memberIds.map(memberId => {
-              const member = getUser(memberId)
-              return member ? (
-                <div key={memberId} className="member-item">
-                  <div>
-                    <strong>{member.name}</strong>
-                    <span className="member-username">@{member.username}</span>
-                    {memberId === currentKitchen.ownerId && (
-                      <span className="owner-badge">Owner</span>
-                    )}
-                  </div>
-                </div>
-              ) : null
-            })}
-          </div>
-        </div>
-      )}
     </div>
   )
 }

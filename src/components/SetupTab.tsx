@@ -34,188 +34,190 @@ export default function SetupTab({
   const getCategory = (id: string) => currentCategories.find(c => c.id === id)
 
   return (
-    <div className="setup-section">
-      <div className="setup-tabs">
-        <button
-          className={`setup-tab ${activeSetupTab === 'categories' ? 'active' : ''}`}
-          onClick={() => setActiveSetupTab('categories')}
-        >
-          Categories
-        </button>
-        <button
-          className={`setup-tab ${activeSetupTab === 'locations' ? 'active' : ''}`}
-          onClick={() => setActiveSetupTab('locations')}
-        >
-          Locations
-        </button>
-        <button
-          className={`setup-tab ${activeSetupTab === 'items' ? 'active' : ''}`}
-          onClick={() => setActiveSetupTab('items')}
-        >
-          Items
-        </button>
+    <div>
+      <div className="content-card-header" style={{ marginBottom: '1.5rem' }}>
+        <h2 className="page-title" style={{ marginBottom: 0 }}>Setup</h2>
+        <div className="tab-pills">
+          <button
+            className={`tab-pill ${activeSetupTab === 'categories' ? 'active' : ''}`}
+            onClick={() => setActiveSetupTab('categories')}
+          >
+            Categories
+          </button>
+          <button
+            className={`tab-pill ${activeSetupTab === 'locations' ? 'active' : ''}`}
+            onClick={() => setActiveSetupTab('locations')}
+          >
+            Locations
+          </button>
+          <button
+            className={`tab-pill ${activeSetupTab === 'items' ? 'active' : ''}`}
+            onClick={() => setActiveSetupTab('items')}
+          >
+            Items
+          </button>
+        </div>
       </div>
 
       {activeSetupTab === 'categories' && (
-        <div className="setup-content">
-          <h2>Manage Categories</h2>
+        <div className="content-card">
+          <h3 className="content-card-title" style={{ marginBottom: '1rem' }}>Manage Categories</h3>
 
-          <form onSubmit={addCategory} className="quick-add-form">
+          <form onSubmit={addCategory} className="form-inline" style={{ marginBottom: '1.5rem' }}>
             <input
               type="text"
               placeholder="Enter category name (e.g., Spices, Dairy)"
               value={newCategory}
               onChange={(e) => setNewCategory(e.target.value)}
             />
-            <button type="submit" className="btn btn-primary">Add Category</button>
+            <button type="submit" className="btn btn-primary">Add</button>
           </form>
 
-          <div className="simple-list">
+          <div>
             {currentCategories.map(category => (
-              <div key={category.id} className="simple-list-item">
+              <div key={category.id} className="list-item">
                 <span>{category.name}</span>
-                <button onClick={() => deleteCategory(category.id)} className="btn-delete">Delete</button>
+                <button onClick={() => deleteCategory(category.id)} className="btn btn-danger btn-sm">Delete</button>
               </div>
             ))}
             {currentCategories.length === 0 && (
-              <p className="empty-state">No categories yet. Add your first category above!</p>
+              <div className="empty-state"><p>No categories yet. Add your first category above!</p></div>
             )}
           </div>
         </div>
       )}
 
       {activeSetupTab === 'locations' && (
-        <div className="setup-content">
-          <h2>Manage Locations</h2>
+        <div className="content-card">
+          <h3 className="content-card-title" style={{ marginBottom: '1rem' }}>Manage Locations</h3>
 
-          <form onSubmit={addLocation} className="quick-add-form">
+          <form onSubmit={addLocation} className="form-inline" style={{ marginBottom: '1.5rem' }}>
             <input
               type="text"
               placeholder="Enter location (e.g., Top Shelf, Pantry)"
               value={newLocation}
               onChange={(e) => setNewLocation(e.target.value)}
             />
-            <button type="submit" className="btn btn-primary">Add Location</button>
+            <button type="submit" className="btn btn-primary">Add</button>
           </form>
 
-          <div className="simple-list">
+          <div>
             {currentLocations.map(location => (
-              <div key={location.id} className="simple-list-item">
+              <div key={location.id} className="list-item">
                 <span>{location.name}</span>
-                <button onClick={() => deleteLocation(location.id)} className="btn-delete">Delete</button>
+                <button onClick={() => deleteLocation(location.id)} className="btn btn-danger btn-sm">Delete</button>
               </div>
             ))}
             {currentLocations.length === 0 && (
-              <p className="empty-state">No locations yet. Add your first location above!</p>
+              <div className="empty-state"><p>No locations yet. Add your first location above!</p></div>
             )}
           </div>
         </div>
       )}
 
       {activeSetupTab === 'items' && (
-        <div className="setup-content">
-          <h2>Manage Item Masters</h2>
+        <div>
+          <div className="content-card">
+            <h3 className="content-card-title" style={{ marginBottom: '1rem' }}>Add Item Master</h3>
 
-          <form onSubmit={addItemMaster} className="add-item-form">
-            <div className="form-row">
+            <form onSubmit={addItemMaster}>
+              <div className="form-row">
+                <div className="form-group">
+                  <label>Item Name</label>
+                  <input
+                    type="text"
+                    placeholder="e.g., Garam Masala"
+                    value={newItemMaster.name}
+                    onChange={(e) => setNewItemMaster({ ...newItemMaster, name: e.target.value })}
+                    required
+                  />
+                </div>
+
+                <div className="form-group">
+                  <label>Category</label>
+                  <select
+                    value={newItemMaster.categoryId}
+                    onChange={(e) => setNewItemMaster({ ...newItemMaster, categoryId: e.target.value })}
+                    required
+                  >
+                    <option value="">Select Category</option>
+                    {currentCategories.map(cat => (
+                      <option key={cat.id} value={cat.id}>{cat.name}</option>
+                    ))}
+                  </select>
+                </div>
+
+                <div className="form-group">
+                  <label>Default Unit</label>
+                  <select
+                    value={newItemMaster.defaultUnit}
+                    onChange={(e) => setNewItemMaster({ ...newItemMaster, defaultUnit: e.target.value as any })}
+                    required
+                  >
+                    <option value="g">Grams (g)</option>
+                    <option value="kg">Kilograms (kg)</option>
+                    <option value="l">Liters (l)</option>
+                    <option value="ml">Milliliters (ml)</option>
+                    <option value="pcs">Pieces (pcs)</option>
+                  </select>
+                </div>
+              </div>
+
               <div className="form-group">
-                <label>Item Name</label>
-                <input
-                  type="text"
-                  placeholder="e.g., Garam Masala"
-                  value={newItemMaster.name}
-                  onChange={(e) => setNewItemMaster({ ...newItemMaster, name: e.target.value })}
-                  required
+                <label>Comments (Optional)</label>
+                <textarea
+                  placeholder="e.g., Brand name, special notes, etc."
+                  value={newItemMaster.comments}
+                  onChange={(e) => setNewItemMaster({ ...newItemMaster, comments: e.target.value })}
+                  rows={2}
                 />
               </div>
 
               <div className="form-group">
-                <label>Category</label>
-                <select
-                  value={newItemMaster.categoryId}
-                  onChange={(e) => setNewItemMaster({ ...newItemMaster, categoryId: e.target.value })}
-                  required
-                >
-                  <option value="">Select Category</option>
-                  {currentCategories.map(cat => (
-                    <option key={cat.id} value={cat.id}>{cat.name}</option>
-                  ))}
-                </select>
+                <label>Image (Optional)</label>
+                <input
+                  type="file"
+                  accept="image/*"
+                  onChange={handleItemMasterImageUpload}
+                  className="file-input"
+                />
+                {newItemMaster.imageUrl && (
+                  <div className="image-preview">
+                    <img src={newItemMaster.imageUrl} alt="Preview" />
+                    <button type="button" onClick={removeItemMasterImage} className="btn btn-danger btn-sm">
+                      Remove Image
+                    </button>
+                  </div>
+                )}
               </div>
 
-              <div className="form-group">
-                <label>Default Unit</label>
-                <select
-                  value={newItemMaster.defaultUnit}
-                  onChange={(e) => setNewItemMaster({ ...newItemMaster, defaultUnit: e.target.value as any })}
-                  required
-                >
-                  <option value="g">Grams (g)</option>
-                  <option value="kg">Kilograms (kg)</option>
-                  <option value="l">Liters (l)</option>
-                  <option value="ml">Milliliters (ml)</option>
-                  <option value="pcs">Pieces (pcs)</option>
-                </select>
-              </div>
-            </div>
+              <button type="submit" className="btn btn-primary btn-block">Add Item Master</button>
+            </form>
+          </div>
 
-            <div className="form-group">
-              <label>Comments (Optional)</label>
-              <textarea
-                placeholder="e.g., Brand name, special notes, etc."
-                value={newItemMaster.comments}
-                onChange={(e) => setNewItemMaster({ ...newItemMaster, comments: e.target.value })}
-                rows={2}
-              />
-            </div>
-
-            <div className="form-group">
-              <label>Image (Optional)</label>
-              <input
-                type="file"
-                accept="image/*"
-                onChange={handleItemMasterImageUpload}
-                className="file-input"
-              />
-              {newItemMaster.imageUrl && (
-                <div className="image-preview">
-                  <img src={newItemMaster.imageUrl} alt="Preview" />
-                  <button type="button" onClick={removeItemMasterImage} className="btn-delete">
-                    Remove Image
-                  </button>
-                </div>
-              )}
-            </div>
-
-            <button type="submit" className="btn btn-primary btn-block">Add Item Master</button>
-          </form>
-
-          <div className="items-grid">
+          <div className="master-cards">
             {currentItemMasters.map(item => (
-              <div key={item.id} className="item-card">
+              <div key={item.id} className="master-card">
                 {item.imageUrl && (
-                  <div className="item-image">
+                  <div className="master-card-image">
                     <img src={item.imageUrl} alt={item.name} />
                   </div>
                 )}
-                <div className="item-header">
-                  <h3>{item.name}</h3>
-                  <span className="category-badge">{getCategory(item.categoryId)?.name}</span>
+                <h4>{item.name}</h4>
+                <div className="master-card-meta">
+                  <span className="badge badge-category">{getCategory(item.categoryId)?.name}</span>
+                  <span className="badge badge-unit">{getUnitLabel(item.defaultUnit)}</span>
                 </div>
-                <div className="item-details">
-                  <p><strong>Default Unit:</strong> {getUnitLabel(item.defaultUnit)}</p>
-                  {item.comments && (
-                    <div className="comments-section">
-                      <strong>Comments:</strong>
-                      <p>{item.comments}</p>
-                    </div>
-                  )}
-                </div>
-                <button onClick={() => deleteItemMaster(item.id)} className="btn-delete">Delete</button>
+                {item.comments && (
+                  <div className="master-card-comments">
+                    <p>{item.comments}</p>
+                  </div>
+                )}
+                <button onClick={() => deleteItemMaster(item.id)} className="btn btn-danger btn-sm">Delete</button>
               </div>
             ))}
             {currentItemMasters.length === 0 && (
-              <p className="empty-state">No items yet. Add your first item above!</p>
+              <div className="empty-state"><p>No items yet. Add your first item above!</p></div>
             )}
           </div>
         </div>

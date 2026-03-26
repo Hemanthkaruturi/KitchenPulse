@@ -37,33 +37,25 @@ export default function InventoryView({
 
   return (
     <>
-      <div className="filter-section">
-        <div className="search-bar">
+      <div className="filter-bar">
+        <div className="search-box">
           <input
             type="text"
             placeholder="Search items..."
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
-            className="search-input"
           />
           {searchQuery && (
-            <button
-              onClick={() => setSearchQuery('')}
-              className="btn-clear-search"
-              type="button"
-            >
+            <button onClick={() => setSearchQuery('')} className="search-clear" type="button">
               ✕
             </button>
           )}
         </div>
 
-        <div className="filter-controls">
+        <div className="filter-grid">
           <div className="filter-group">
             <label>Category</label>
-            <select
-              value={filterCategory}
-              onChange={(e) => setFilterCategory(e.target.value)}
-            >
+            <select value={filterCategory} onChange={(e) => setFilterCategory(e.target.value)}>
               <option value="">All Categories</option>
               {currentCategories.map(cat => (
                 <option key={cat.id} value={cat.id}>{cat.name}</option>
@@ -73,10 +65,7 @@ export default function InventoryView({
 
           <div className="filter-group">
             <label>Location</label>
-            <select
-              value={filterLocation}
-              onChange={(e) => setFilterLocation(e.target.value)}
-            >
+            <select value={filterLocation} onChange={(e) => setFilterLocation(e.target.value)}>
               <option value="">All Locations</option>
               {currentLocations.map(loc => (
                 <option key={loc.id} value={loc.id}>{loc.name}</option>
@@ -86,17 +75,14 @@ export default function InventoryView({
 
           <div className="filter-group">
             <label>Sort By</label>
-            <select
-              value={sortBy}
-              onChange={(e) => setSortBy(e.target.value as 'name' | 'date' | 'remaining')}
-            >
+            <select value={sortBy} onChange={(e) => setSortBy(e.target.value as 'name' | 'date' | 'remaining')}>
               <option value="name">Name (A-Z)</option>
               <option value="date">Purchase Date (Newest)</option>
               <option value="remaining">Stock Level (Low to High)</option>
             </select>
           </div>
 
-          <div className="filter-group checkbox-group">
+          <div className="filter-checkbox">
             <label>
               <input
                 type="checkbox"
@@ -127,7 +113,7 @@ export default function InventoryView({
         )}
       </div>
 
-      <div className="items-grid">
+      <div className="inventory-grid">
         {filteredInventory.map(item => {
           const itemMaster = getItemMaster(item.itemMasterId)
           const category = itemMaster ? getCategory(itemMaster.categoryId) : null
@@ -136,54 +122,80 @@ export default function InventoryView({
           const lowStock = isLowStock(item)
 
           return (
-            <div key={item.id} className={`item-card ${lowStock ? 'low-stock' : ''}`}>
+            <div key={item.id} className={`inv-card ${lowStock ? 'low-stock' : ''}`}>
               {item.imageUrl && (
-                <div className="item-image">
+                <div className="inv-card-image">
                   <img src={item.imageUrl} alt={itemMaster?.name} />
                 </div>
               )}
 
-              <div className="item-header">
-                <h3>{itemMaster?.name}</h3>
-                <span className="category-badge">{category?.name}</span>
-              </div>
-
-              <div className="item-details">
-                <p><strong>Location:</strong> {location?.name}</p>
-                <p><strong>Total Amount:</strong> {item.totalAmount} {itemMaster?.defaultUnit}</p>
-                <p><strong>Used Amount:</strong> {item.usedAmount.toFixed(2)} {itemMaster?.defaultUnit}</p>
-                <p><strong>Remaining:</strong> {getRemainingAmount(item).toFixed(2)} {itemMaster?.defaultUnit} ({remainingPercentage.toFixed(1)}%)</p>
-                <p><strong>Purchase Date:</strong> {new Date(item.purchaseDate).toLocaleDateString()}</p>
-                <p><strong>Price:</strong> ₹{item.price.toFixed(2)}</p>
-                <p><strong>Price per {itemMaster?.defaultUnit}:</strong> ₹{getPricePerUnit(item).toFixed(2)}</p>
-                <p><strong>Remaining Value:</strong> ₹{getRemainingValue(item).toFixed(2)}</p>
-
-                {item.comments && (
-                  <div className="comments-section">
-                    <strong>Comments:</strong>
-                    <p>{item.comments}</p>
+              <div className="inv-card-header">
+                <div>
+                  <h3>{itemMaster?.name}</h3>
+                  <div className="inv-card-badges">
+                    {category && <span className="badge badge-category">{category.name}</span>}
+                    {location && <span className="badge badge-location">{location.name}</span>}
                   </div>
-                )}
-
-                {lowStock && (
-                  <div className="alert alert-warning">
-                    Low Stock! Below {item.lowStockThreshold}% threshold
-                  </div>
-                )}
-              </div>
-
-              <div className="progress-section">
-                <div className="progress-bar">
-                  <div
-                    className={`progress-fill ${lowStock ? 'low' : ''}`}
-                    style={{ width: `${remainingPercentage}%` }}
-                  ></div>
                 </div>
               </div>
 
-              <div className="usage-update">
+              <div className="inv-card-details">
+                <div className="detail-row">
+                  <span className="label">Total Amount</span>
+                  <span className="value">{item.totalAmount} {itemMaster?.defaultUnit}</span>
+                </div>
+                <div className="detail-row">
+                  <span className="label">Used</span>
+                  <span className="value">{item.usedAmount.toFixed(2)} {itemMaster?.defaultUnit}</span>
+                </div>
+                <div className="detail-row">
+                  <span className="label">Remaining</span>
+                  <span className="value">{getRemainingAmount(item).toFixed(2)} {itemMaster?.defaultUnit} ({remainingPercentage.toFixed(1)}%)</span>
+                </div>
+                <div className="detail-row">
+                  <span className="label">Purchase Date</span>
+                  <span className="value">{new Date(item.purchaseDate).toLocaleDateString()}</span>
+                </div>
+              </div>
+
+              <div className="inv-card-price">
+                <div className="price-row">
+                  <span className="label">Price</span>
+                  <span className="value">₹{item.price.toFixed(2)}</span>
+                </div>
+                <div className="price-row">
+                  <span className="label">Per {itemMaster?.defaultUnit}</span>
+                  <span className="value">₹{getPricePerUnit(item).toFixed(2)}</span>
+                </div>
+                <div className="price-row">
+                  <span className="label">Remaining Value</span>
+                  <span className="value success">₹{getRemainingValue(item).toFixed(2)}</span>
+                </div>
+              </div>
+
+              {item.comments && (
+                <div className="inv-card-comments">
+                  <strong>Comments</strong>
+                  <p>{item.comments}</p>
+                </div>
+              )}
+
+              {lowStock && (
+                <div className="alert-warning">
+                  Low Stock! Below {item.lowStockThreshold}% threshold
+                </div>
+              )}
+
+              <div className="progress-bar">
+                <div
+                  className="progress-fill"
+                  style={{ width: `${remainingPercentage}%` }}
+                />
+              </div>
+
+              <div className="usage-section">
                 <label>Update Usage (%):</label>
-                <div className="usage-input-group">
+                <div className="usage-input-row">
                   <input
                     type="number"
                     min="0"
@@ -210,15 +222,17 @@ export default function InventoryView({
                 </div>
               </div>
 
-              <button onClick={() => deleteInventoryItem(item.id)} className="btn-delete">Delete</button>
+              <div className="inv-card-actions">
+                <button onClick={() => deleteInventoryItem(item.id)} className="btn btn-danger btn-sm">Delete</button>
+              </div>
             </div>
           )
         })}
         {filteredInventory.length === 0 && currentInventory.length > 0 && (
-          <p className="empty-state">No items match your search/filter criteria.</p>
+          <div className="empty-state"><p>No items match your search/filter criteria.</p></div>
         )}
         {currentInventory.length === 0 && (
-          <p className="empty-state">No inventory items yet. Switch to "Add Inventory" tab to add items!</p>
+          <div className="empty-state"><p>No inventory items yet. Switch to "Add Inventory" tab to add items!</p></div>
         )}
       </div>
     </>
